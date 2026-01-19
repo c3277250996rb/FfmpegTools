@@ -1,0 +1,71 @@
+@REM <pre>
+@REM 金米妮金米妮金米妮金米妮金米妮金米妮金米妮金米妮金米妮金米妮
+
+
+@echo off
+REM ====================================
+REM ffmpeg 按时间分割视频（自动建文件夹版）
+REM ====================================
+
+:: 输入视频文件（可包含路径）
+set "input=2025-10-17 22-10-02.mp4"
+
+:: 每段视频时长（单位：秒）
+set "segment_time=1200"
+
+:: ====================================
+:: 提取文件名与路径
+for %%I in ("%input%") do (
+    set "fullpath=%%~fI"
+    set "filename=%%~nI"
+    set "extension=%%~xI"
+    set "folder=%%~dpI"
+)
+
+:: 目标输出文件夹
+set "outdir=%folder%%filename%"
+
+:: 若不存在则创建输出文件夹
+if not exist "%outdir%" (
+    mkdir "%outdir%"
+)
+
+:: 输出文件名模板（例如 test_000.mp4）
+set "output_pattern=%outdir%\%filename%_%%03d.mp4"
+
+echo ------------------------------------
+echo  源文件:      %fullpath%
+echo  输出目录:    %outdir%
+echo  每段时长:    %segment_time% 秒
+echo ------------------------------------
+
+:: 执行分割
+ffmpeg -i "%fullpath%" -c copy -map 0 -f segment -segment_time %segment_time% -reset_timestamps 1 "%output_pattern%"
+
+
+echo  分割完成，正在倒序重命名为从1开始编号...
+cd /d "%outdir%"
+
+:: 统计文件数量
+setlocal enabledelayedexpansion
+set /a count=0
+for %%A in ("%filename%_*.mp4") do set /a count+=1
+
+:: 倒序改名（从大到小）
+for /l %%i in (!count!,-1,1) do (
+    set "oldnum=000"
+    set "newnum=000"
+    set /a oldnum=%%i-1
+    set /a newnum=%%i
+    set "oldnum=00!oldnum!"
+    set "newnum=00!newnum!"
+    set "oldnum=!oldnum:~-3!"
+    set "newnum=!newnum:~-3!"
+    if exist "%filename%_!oldnum!.mp4" ren "%filename%_!oldnum!.mp4" "%filename%_!newnum!.mp4"
+)
+
+endlocal
+
+echo  所有文件已成功改名为从1开始编号！
+@REM pause
+@REM </pre>
