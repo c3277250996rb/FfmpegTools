@@ -12,7 +12,7 @@ if "%~1"=="" (
 
 set "input=%~1"
 
-set /p time=请输入时间点(00:00:00)：
+set /p time=请输入时间点(00:00:00 或 数字)：
 set /p mode=请输入模式(start 或 end)：
 
 for %%F in ("%input%") do (
