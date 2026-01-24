@@ -1,6 +1,8 @@
 @echo off
 setlocal enabledelayedexpansion
 
+:START
+@REM cls
 echo.
 echo ===== 视频 + SRT 字幕合成 =====
 echo.
@@ -14,13 +16,13 @@ set /p video=
 if "%video%"=="" (
     echo 未输入视频
     pause
-    exit /b
+    goto START
 )
 
 if not exist "%video%" (
     echo 视频不存在
     pause
-    exit /b
+    goto START
 )
 
 :: ==============================
@@ -33,21 +35,18 @@ set /p srt=
 if "%srt%"=="" (
     echo 未输入字幕
     pause
-    exit /b
+    goto START
 )
 
 if not exist "%srt%" (
     echo 字幕不存在
     pause
-    exit /b
+    goto START
 )
 
 :: ==============================
 :: 路径处理
 :: ==============================
-set "dir=%~dp1"
-set "name=%~n1"
-
 for %%A in ("%video%") do (
     set "vname=%%~nA"
     set "vdir=%%~dpA"
@@ -68,8 +67,10 @@ ffmpeg -y ^
     -c:s mov_text ^
     "%outfile%"
 
-
 echo.
 echo 完成：
 echo %outfile%
+echo.
 pause
+
+goto START
